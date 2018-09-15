@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Reyedr OBD/Bluetooth App</string>
+    <string name="connector_selector">Select Bike Manufacturer/Connector:</string>
 </resources>
