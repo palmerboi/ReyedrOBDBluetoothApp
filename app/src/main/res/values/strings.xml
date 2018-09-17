@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Reyedr OBD/Bluetooth App</string>
     <string name="connector_selector">Select Bike Manufacturer/Connector:</string>
+    <string name="proceed">Proceed</string>
+    <string name="bluetooth_setup">Setup Bluetooth Connection</string>
+    <string name="enable_bluetooth">Enable Bluetooth</string>
+    <string name="disable_bluetooth">Disable Bluetooth</string>
+    <string name="discover_devices">Discover Devices</string>
+    <string-array name="connectors_array">
+        <item>Harley Davidson/6-pin</item>
+        <item>Harley Davidson/4-pin</item>
+        <item>BMW/10-pin</item>
+    </string-array>
 </resources>
