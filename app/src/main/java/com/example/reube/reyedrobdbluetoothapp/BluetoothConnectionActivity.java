@@ -3,30 +3,24 @@ package com.example.reube.reyedrobdbluetoothapp;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class BluetoothConnectionActivity extends Activity {
+    private static final String TAG = "BluetoothConnectionAct";
     private static final int REQUEST_ENABLE_BT = 1 ;
     private String connectorType;
     private BluetoothAdapter bluetoothAdapter;
@@ -34,16 +28,15 @@ public class BluetoothConnectionActivity extends Activity {
     private ArrayList<String> discoveredDeviceNames = new ArrayList();
     private Map<String, String> pairedDevices = new HashMap<>();
     private ArrayList<String> pairedDeviceNames = new ArrayList<>();
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            Log.d("reciever", "Device found..");
+            Log.d(TAG, "Device found..");
             if (action.equals(BluetoothDevice.ACTION_NAME_CHANGED)){
                 BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
-                Log.d("reciever", "Device: " + device.getName() + "/" + device.getAddress());
+                Log.d(TAG, "Device: " + device.getName() + "/" + device.getAddress());
                 discoveredDevices.put(device.getName(), device);
                 discoveredDeviceNames.add(device.getName());
                 setDiscoveredSpinner();
@@ -71,7 +64,7 @@ public class BluetoothConnectionActivity extends Activity {
         setContentView(R.layout.activity_bluetooth_connection);
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        String message = intent.getStringExtra(ConnectorSelectionActivity.EXTRA_SELECTION);
+        String message = intent.getStringExtra("ConnectorSelection");
         connectorType = message;
         Toast.makeText(this, message + " was selected" , Toast.LENGTH_LONG).show();
         // Get Bluetooth adapter on device
@@ -111,7 +104,7 @@ public class BluetoothConnectionActivity extends Activity {
 
     public void getPairedDevices(View view) {
         Set<BluetoothDevice> pairedDeviceSet = bluetoothAdapter.getBondedDevices();
-        Log.d("getPairedDevices", "Searching currently paired devices..");
+        Log.d(TAG, "Searching currently paired devices..");
         Spinner spinner = (Spinner)findViewById(R.id.spinner3);
         if (pairedDeviceNames.size() == 0) {
             pairedDeviceNames.add("Select device from list:");
@@ -122,7 +115,7 @@ public class BluetoothConnectionActivity extends Activity {
         if (pairedDevices.size() > 0) {
             // There are paired devices. Get the name and address of each paired device.
             for (BluetoothDevice device : pairedDeviceSet) {
-                Log.d("getPairedDevices", "PairedDevice: " +device.getName() + "/" + device.getAddress() );
+                Log.d(TAG, "PairedDevice: " +device.getName() + "/" + device.getAddress() );
                 pairedDevices.put(device.getName(), device.getAddress());
                 pairedDeviceNames.add(device.getName());
                 setPairedSpinner();
@@ -137,7 +130,7 @@ public class BluetoothConnectionActivity extends Activity {
         filter.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
         registerReceiver(receiver, filter);
         bluetoothAdapter.startDiscovery();
-        Log.d("discoverDevices", "Discovering...");
+        Log.d(TAG, "Discovering...");
         Spinner spinner = (Spinner)findViewById(R.id.spinner2);
         if (discoveredDeviceNames.size() == 0) {
             discoveredDeviceNames.add("Select device from list:");
@@ -151,62 +144,11 @@ public class BluetoothConnectionActivity extends Activity {
         Spinner spinner = (Spinner)findViewById(R.id.spinner2);
         String deviceName = spinner.getSelectedItem().toString();
         BluetoothDevice device = discoveredDevices.get(deviceName);
-        ConnectThread connectThread = new ConnectThread(device);
-        connectThread.run();
-    }
-
-    private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
-
-        public ConnectThread(BluetoothDevice device) {
-            // Use a temporary object that is later assigned to mmSocket
-            // because mmSocket is final.
-            BluetoothSocket tmp = null;
-            mmDevice = device;
-
-            try {
-                // Get a BluetoothSocket to connect with the given BluetoothDevice.
-                // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-            } catch (IOException e) {
-                Log.e("ConnectThread", "Socket's create() method failed", e);
-            }
-            mmSocket = tmp;
-        }
-
-        public void run() {
-            // Cancel discovery because it otherwise slows down the connection.
-            bluetoothAdapter.cancelDiscovery();
-
-            try {
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
-                mmSocket.connect();
-                Log.d("run", "run: attempting to connect to device");
-            } catch (IOException connectException) {
-                // Unable to connect; close the socket and return.
-                try {
-                    mmSocket.close();
-                } catch (IOException closeException) {
-                    Log.e("run", "Could not close the client socket", closeException);
-                }
-                Log.d("run", "run: device successfully connected");
-                return;
-            }
-
-            // The connection attempt succeeded. Perform work associated with
-            // the connection in a separate thread.
-            //manageMyConnectedSocket(mmSocket);
-        }
-
-        // Closes the client socket and causes the thread to finish.
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.e("cancel", "Could not close the client socket", e);
-            }
+        Log.d(TAG, "connectToDevice: " + device.getName() + " " + device.getAddress());
+        Intent intent = new Intent(this, OBDDashboardActivity.class);
+        intent.putExtra("btDevice", device);
+        intent.putExtra("ConnectorSelection", connectorType);
+        startActivity(intent);
         }
     }
-}
+

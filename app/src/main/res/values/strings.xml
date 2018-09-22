@@ -8,6 +8,8 @@
     <string name="discover_devices">Discover Devices</string>
     <string name="paired_devices">Find Paired Devices</string>
     <string name="connect_to_device">Connect</string>
+    <string name="obd_dashboard">OBD Dashboard</string>
+    <string name="data">data</string>
     <string-array name="connectors_array">
         <item>Harley Davidson/6-pin</item>
         <item>Harley Davidson/4-pin</item>
