@@ -19,6 +19,7 @@ public class BluetoothConnectionService {
     private static final UUID BLUETOOTH_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
     private final BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
+
     private ConnectThread connectThread;
     private ConnectedThread connectedThread;
     Context context;
@@ -138,6 +139,7 @@ public class BluetoothConnectionService {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(incomingMessageIntent);
                 } catch (IOException e) {
                     Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
+                    // have error intent sent back to try start connection again automatically
                     break;
                 }
             }
@@ -177,5 +179,9 @@ public class BluetoothConnectionService {
         Log.d(TAG, "write: Write Called.");
         // Perform the write
         connectedThread.write(out);
+    }
+
+    public void cancelConnection () {
+        connectThread.cancel();
     }
 }

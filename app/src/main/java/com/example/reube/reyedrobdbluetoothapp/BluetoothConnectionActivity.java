@@ -21,39 +21,32 @@ import java.util.Set;
 
 public class BluetoothConnectionActivity extends Activity {
     private static final String TAG = "BluetoothConnectionAct";
-    private static final int REQUEST_ENABLE_BT = 1 ;
+    private static final int REQUEST_ENABLE_BT = 1;
     private String connectorType;
     private BluetoothAdapter bluetoothAdapter;
     private Map<String, BluetoothDevice> discoveredDevices = new HashMap<String, BluetoothDevice>();
     private ArrayList<String> discoveredDeviceNames = new ArrayList();
-    private Map<String, String> pairedDevices = new HashMap<>();
-    private ArrayList<String> pairedDeviceNames = new ArrayList<>();
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             Log.d(TAG, "Device found..");
-            if (action.equals(BluetoothDevice.ACTION_NAME_CHANGED)){
-                BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
+            if (action.equals(BluetoothDevice.ACTION_NAME_CHANGED)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d(TAG, "Device: " + device.getName() + "/" + device.getAddress());
-                discoveredDevices.put(device.getName(), device);
-                discoveredDeviceNames.add(device.getName());
-                setDiscoveredSpinner();
+                if (!discoveredDeviceNames.contains(device.getName())) {
+                    discoveredDevices.put(device.getName(), device);
+                    discoveredDeviceNames.add(device.getName());
+                    setDiscoveredSpinner();
+                }
             }
         }
     };
 
     public void setDiscoveredSpinner() {
-        Spinner spinner = (Spinner)findViewById(R.id.spinner2);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner2);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, discoveredDeviceNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-    }
-
-    public void setPairedSpinner() {
-        Spinner spinner = (Spinner)findViewById(R.id.spinner3);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, pairedDeviceNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
@@ -66,7 +59,6 @@ public class BluetoothConnectionActivity extends Activity {
         Intent intent = getIntent();
         String message = intent.getStringExtra("ConnectorSelection");
         connectorType = message;
-        Toast.makeText(this, message + " was selected" , Toast.LENGTH_LONG).show();
         // Get Bluetooth adapter on device
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Button button = findViewById(R.id.button2);
@@ -88,38 +80,18 @@ public class BluetoothConnectionActivity extends Activity {
     public void enableDisableBluetooth(View view) {
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
-            Toast.makeText(this, "Bluetooth not supported on this device!" , Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Bluetooth not supported on this device!", Toast.LENGTH_LONG).show();
         }
         Button button = findViewById(R.id.button2);
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            bluetoothAdapter.cancelDiscovery();
             button.setText(getResources().getString(R.string.disable_bluetooth));
         }
         if (bluetoothAdapter.isEnabled()) {
             bluetoothAdapter.disable();
             button.setText(getResources().getString(R.string.enable_bluetooth));
-        }
-    }
-
-    public void getPairedDevices(View view) {
-        Set<BluetoothDevice> pairedDeviceSet = bluetoothAdapter.getBondedDevices();
-        Log.d(TAG, "Searching currently paired devices..");
-        Spinner spinner = (Spinner)findViewById(R.id.spinner3);
-        if (pairedDeviceNames.size() == 0) {
-            pairedDeviceNames.add("Select device from list:");
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, pairedDeviceNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        if (pairedDevices.size() > 0) {
-            // There are paired devices. Get the name and address of each paired device.
-            for (BluetoothDevice device : pairedDeviceSet) {
-                Log.d(TAG, "PairedDevice: " +device.getName() + "/" + device.getAddress() );
-                pairedDevices.put(device.getName(), device.getAddress());
-                pairedDeviceNames.add(device.getName());
-                setPairedSpinner();
-            }
         }
     }
 
@@ -131,7 +103,7 @@ public class BluetoothConnectionActivity extends Activity {
         registerReceiver(receiver, filter);
         bluetoothAdapter.startDiscovery();
         Log.d(TAG, "Discovering...");
-        Spinner spinner = (Spinner)findViewById(R.id.spinner2);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner2);
         if (discoveredDeviceNames.size() == 0) {
             discoveredDeviceNames.add("Select device from list:");
         }
@@ -141,14 +113,19 @@ public class BluetoothConnectionActivity extends Activity {
     }
 
     public void connectToDevice(View view) {
-        Spinner spinner = (Spinner)findViewById(R.id.spinner2);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner2);
         String deviceName = spinner.getSelectedItem().toString();
-        BluetoothDevice device = discoveredDevices.get(deviceName);
-        Log.d(TAG, "connectToDevice: " + device.getName() + " " + device.getAddress());
-        Intent intent = new Intent(this, OBDDashboardActivity.class);
-        intent.putExtra("btDevice", device);
-        intent.putExtra("ConnectorSelection", connectorType);
-        startActivity(intent);
+        if (!deviceName.equalsIgnoreCase("Select device from list:")) {
+            BluetoothDevice device = discoveredDevices.get(deviceName);
+            Log.d(TAG, "connectToDevice: " + device.getName() + " " + device.getAddress());
+            Intent intent = new Intent(this, OBDDashboardActivity.class);
+            intent.putExtra("btDevice", device);
+            intent.putExtra("ConnectorSelection", connectorType);
+            startActivity(intent);
+        }
+        else {
+            Toast.makeText(this, "Select a device to connect to", Toast.LENGTH_LONG).show();
         }
     }
+}
 

@@ -25,8 +25,8 @@ public class ConnectorSelectionActivity extends Activity {
         Intent intent = new Intent(this, BluetoothConnectionActivity.class);
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         String selection = spinner.getSelectedItem().toString();
-        if(selection.isEmpty()) {
-            Toast.makeText(this, "Select a manufacturer/connector to continue" , Toast.LENGTH_LONG).show();
+        if(!selection.equalsIgnoreCase("Harley Davidson/6-pin")) {
+            Toast.makeText(this, "Not currently supported!" , Toast.LENGTH_LONG).show();
         } else {
             intent.putExtra("ConnectorSelection", selection);
             startActivity(intent);
