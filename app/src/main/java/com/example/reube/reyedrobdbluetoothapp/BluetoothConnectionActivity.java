@@ -27,6 +27,7 @@ public class BluetoothConnectionActivity extends Activity {
     private Map<String, BluetoothDevice> discoveredDevices = new HashMap<String, BluetoothDevice>();
     private ArrayList<String> discoveredDeviceNames = new ArrayList();
 
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

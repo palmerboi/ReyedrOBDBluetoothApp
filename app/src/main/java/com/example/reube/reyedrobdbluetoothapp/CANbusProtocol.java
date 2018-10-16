@@ -71,7 +71,7 @@ public class CANbusProtocol implements OBDII {
                 return null;
             }
             Log.d(TAG, "decimal value of speed: " + byteA.toString());
-            processedResponse = byteA.toString() + " KM/H";
+            processedResponse = byteA.toString() + " km/h";
             Log.d(TAG, processedResponse);
             return processedResponse;
         }

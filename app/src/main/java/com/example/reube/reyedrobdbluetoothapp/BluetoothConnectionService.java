@@ -140,6 +140,7 @@ public class BluetoothConnectionService {
                 } catch (IOException e) {
                     Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
                     // have error intent sent back to try start connection again automatically
+
                     break;
                 }
             }

@@ -9,9 +9,9 @@
 
     <TextView
         android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_width="49dp"
+        android:layout_height="17dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginStart="128dp"
         android:layout_marginTop="36dp"
         android:text="@string/Speed"
@@ -45,9 +45,9 @@
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_width="36dp"
+        android:layout_height="17dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginStart="124dp"
         android:layout_marginTop="8dp"
         android:text="@string/RPM"
